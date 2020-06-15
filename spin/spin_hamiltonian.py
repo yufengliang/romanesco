@@ -96,14 +96,25 @@ class test_SpinMatrix(unittest.TestCase):
 
     def test_heisenberg_couplings(self):
         pms = common.constants.pauli_matrices
-        sys1 = SpinMatrix(2, 2, sp.sparse.coo_matrix)
-        sys1.add_term([0, 1], [pms[0], pms[0]]) # \krons(sigma_x, sigma_x)
-        sys1.add_term([0, 1], [pms[1], pms[1]]) # \krons(sigma_y, sigma_y)
-        sys1.add_term([0, 1], [pms[2], pms[2]]) # \krons(sigma_z, sigma_z)
+        sys = SpinMatrix(2, 2, sp.sparse.coo_matrix)
+        sys.add_term([0, 1], [pms[1], pms[1]]) # \krons(sigma_x, sigma_x)
+        sys.add_term([0, 1], [pms[2], pms[2]]) # \krons(sigma_y, sigma_y)
+        sys.add_term([0, 1], [pms[3], pms[3]]) # \krons(sigma_z, sigma_z)
 
-        print('sys1: ')
-        print(sys1.matrix.todense())
+        print('heisenberg coupling: ')
+        print(sys.matrix.todense())
         print()
+
+        self.assertEqual(
+            sp.alltrue(
+                sys.matrix ==
+                sp.array([[ 1.+0.j,  0.+0.j,  0.+0.j,  0.+0.j],
+                          [ 0.+0.j, -1.+0.j,  2.+0.j,  0.+0.j],
+                          [ 0.+0.j,  2.+0.j, -1.+0.j,  0.+0.j],
+                          [ 0.+0.j,  0.+0.j,  0.+0.j,  1.+0.j]])
+            ),
+            True
+        )
 
 if __name__ == '__main__':
     unittest.main()
