@@ -158,5 +158,31 @@ class test_SpinMatrix(unittest.TestCase):
             True
         )
 
+    def test_mixed_spins(self):
+        pms = common.constants.pauli_matrices
+        sys = SpinMatrix(N=2, spin_number=[2, 3], sparse_type=sp.sparse.csr_matrix)
+        rand_mat_3 = sp.matrix([[0,  1, 2],
+                                [2, -1, 2],
+                                [0,  0, 1]])
+        sys.add_term([0, 1], [pms[2], rand_mat_3]) # \krons(sigma_y, rand_mat_3)
+        sys.add_term([0], [pms[3]]) # add an on-site potential
+
+        print('heisenberg coupling: ')
+        print(sys.matrix.todense())
+        print()
+
+        self.assertEqual(
+            sp.alltrue(
+                sys.matrix ==
+                sp.array([[ 1.+0.j, 0.+0.j, 0.+0.j, 0.+0.j, 0.-1.j, 0.-2.j],
+                          [ 0.+0.j, 1.+0.j, 0.+0.j, 0.-2.j, 0.+1.j, 0.-2.j],
+                          [ 0.+0.j, 0.+0.j, 1.+0.j, 0.+0.j, 0.+0.j, 0.-1.j],
+                          [ 0.+0.j, 0.+1.j, 0.+2.j,-1.+0.j, 0.+0.j, 0.+0.j],
+                          [ 0.+2.j, 0.-1.j, 0.+2.j, 0.+0.j,-1.+0.j, 0.+0.j],
+                          [ 0.+0.j, 0.+0.j, 0.+1.j, 0.+0.j, 0.+0.j,-1.+0.j]])
+            ),
+            True
+        )
+
 if __name__ == '__main__':
     unittest.main()
