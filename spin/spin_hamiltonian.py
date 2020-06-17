@@ -101,7 +101,7 @@ class test_SpinMatrix(unittest.TestCase):
         sys.add_term([0, 1], [pms[2], pms[2]]) # \krons(sigma_y, sigma_y)
         sys.add_term([0, 1], [pms[3], pms[3]]) # \krons(sigma_z, sigma_z)
 
-        print('heisenberg coupling: ')
+        print('Heisenberg coupling: ')
         print(sys.matrix.todense())
         print()
 
@@ -123,7 +123,7 @@ class test_SpinMatrix(unittest.TestCase):
         sys.add_term([0, 1], [pms[2], pms[2]]) # \krons(sigma_y, sigma_y)
         sys.add_term([0, 1], [pms[3], pms[3]]) # \krons(sigma_z, sigma_z)
 
-        print('heisenberg coupling: ')
+        print('Heisenberg coupling: ')
         print(sys.matrix.todense())
         print()
 
@@ -141,9 +141,9 @@ class test_SpinMatrix(unittest.TestCase):
     def test_anisotropy_couplings(self):
         pms = common.constants.pauli_matrices
         sys = SpinMatrix(N=2, spin_number=[2, 2], sparse_type=sp.sparse.csr_matrix)
-        sys.add_term([0, 1], [pms[2], pms[3]]) # \krons(sigma_x, sigma_x)
+        sys.add_term([0, 1], [pms[2], pms[3]]) # \krons(sigma_y, sigma_z)
 
-        print('heisenberg coupling: ')
+        print('Anistropy coupling: ')
         print(sys.matrix.todense())
         print()
 
@@ -167,7 +167,7 @@ class test_SpinMatrix(unittest.TestCase):
         sys.add_term([0, 1], [pms[2], rand_mat_3]) # \krons(sigma_y, rand_mat_3)
         sys.add_term([0], [pms[3]]) # add an on-site potential
 
-        print('heisenberg coupling: ')
+        print('Mixed spins (1/2 and 1): ')
         print(sys.matrix.todense())
         print()
 
