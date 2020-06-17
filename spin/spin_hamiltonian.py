@@ -138,5 +138,25 @@ class test_SpinMatrix(unittest.TestCase):
             True
         )
 
+    def test_anisotropy_couplings(self):
+        pms = common.constants.pauli_matrices
+        sys = SpinMatrix(N=2, spin_number=[2, 2], sparse_type=sp.sparse.csr_matrix)
+        sys.add_term([0, 1], [pms[2], pms[3]]) # \krons(sigma_x, sigma_x)
+
+        print('heisenberg coupling: ')
+        print(sys.matrix.todense())
+        print()
+
+        self.assertEqual(
+            sp.alltrue(
+                sys.matrix ==
+                sp.array([[ 0.+0.j,  0.+0.j,  0.-1.j,  0.+0.j],
+                          [ 0.+0.j,  0.+0.j,  0.+0.j,  0.+1.j],
+                          [ 0.+1.j,  0.+0.j,  0.+0.j,  0.+0.j],
+                          [ 0.+0.j,  0.-1.j,  0.+0.j,  0.+0.j]])
+            ),
+            True
+        )
+
 if __name__ == '__main__':
     unittest.main()
