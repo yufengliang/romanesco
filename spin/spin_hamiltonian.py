@@ -96,7 +96,29 @@ class test_SpinMatrix(unittest.TestCase):
 
     def test_heisenberg_couplings(self):
         pms = common.constants.pauli_matrices
-        sys = SpinMatrix(2, 2, sp.sparse.coo_matrix)
+        sys = SpinMatrix(N=2, spin_number=2, sparse_type=sp.sparse.coo_matrix)
+        sys.add_term([0, 1], [pms[1], pms[1]]) # \krons(sigma_x, sigma_x)
+        sys.add_term([0, 1], [pms[2], pms[2]]) # \krons(sigma_y, sigma_y)
+        sys.add_term([0, 1], [pms[3], pms[3]]) # \krons(sigma_z, sigma_z)
+
+        print('heisenberg coupling: ')
+        print(sys.matrix.todense())
+        print()
+
+        self.assertEqual(
+            sp.alltrue(
+                sys.matrix ==
+                sp.array([[ 1.+0.j,  0.+0.j,  0.+0.j,  0.+0.j],
+                          [ 0.+0.j, -1.+0.j,  2.+0.j,  0.+0.j],
+                          [ 0.+0.j,  2.+0.j, -1.+0.j,  0.+0.j],
+                          [ 0.+0.j,  0.+0.j,  0.+0.j,  1.+0.j]])
+            ),
+            True
+        )
+
+    def test_heisenberg_couplings_spin_number_list(self):
+        pms = common.constants.pauli_matrices
+        sys = SpinMatrix(N=2, spin_number=[2, 2], sparse_type=sp.sparse.coo_matrix)
         sys.add_term([0, 1], [pms[1], pms[1]]) # \krons(sigma_x, sigma_x)
         sys.add_term([0, 1], [pms[2], pms[2]]) # \krons(sigma_y, sigma_y)
         sys.add_term([0, 1], [pms[3], pms[3]]) # \krons(sigma_z, sigma_z)
