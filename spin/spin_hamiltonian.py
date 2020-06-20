@@ -27,7 +27,7 @@ class SpinMatrix():
 
         """
         # number of spins
-        self.N = N
+        self.N = N # !!! in future, should be made protected?
 
         # spins specify the angular momentum number of each spin
         if type(spin_number) == int:
