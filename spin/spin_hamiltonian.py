@@ -47,7 +47,7 @@ class SpinMatrix():
                  i: int):
         return self._spin_number if type(self._spin_number) == int else self._spin_number[i]
 
-    def add_term(self,
+    def add_kron_term(self,
                  inds: typing.Sequence[int],
                  mats: typing.Sequence[sp.matrix]):
         """ !!! no desc.
@@ -97,9 +97,9 @@ class test_SpinMatrix(unittest.TestCase):
     def test_heisenberg_couplings(self):
         pms = common.constants.pauli_matrices
         sys = SpinMatrix(N=2, spin_number=2, sparse_type=sp.sparse.coo_matrix)
-        sys.add_term([0, 1], [pms[1], pms[1]]) # \krons(sigma_x, sigma_x)
-        sys.add_term([0, 1], [pms[2], pms[2]]) # \krons(sigma_y, sigma_y)
-        sys.add_term([0, 1], [pms[3], pms[3]]) # \krons(sigma_z, sigma_z)
+        sys.add_kron_term([0, 1], [pms[1], pms[1]]) # \krons(sigma_x, sigma_x)
+        sys.add_kron_term([0, 1], [pms[2], pms[2]]) # \krons(sigma_y, sigma_y)
+        sys.add_kron_term([0, 1], [pms[3], pms[3]]) # \krons(sigma_z, sigma_z)
 
         print('Heisenberg coupling: ')
         print(sys.matrix.todense())
@@ -119,9 +119,9 @@ class test_SpinMatrix(unittest.TestCase):
     def test_heisenberg_couplings_spin_number_list(self):
         pms = common.constants.pauli_matrices
         sys = SpinMatrix(N=2, spin_number=[2, 2], sparse_type=sp.sparse.coo_matrix)
-        sys.add_term([0, 1], [pms[1], pms[1]]) # \krons(sigma_x, sigma_x)
-        sys.add_term([0, 1], [pms[2], pms[2]]) # \krons(sigma_y, sigma_y)
-        sys.add_term([0, 1], [pms[3], pms[3]]) # \krons(sigma_z, sigma_z)
+        sys.add_kron_term([0, 1], [pms[1], pms[1]]) # \krons(sigma_x, sigma_x)
+        sys.add_kron_term([0, 1], [pms[2], pms[2]]) # \krons(sigma_y, sigma_y)
+        sys.add_kron_term([0, 1], [pms[3], pms[3]]) # \krons(sigma_z, sigma_z)
 
         print('Heisenberg coupling: ')
         print(sys.matrix.todense())
@@ -141,7 +141,7 @@ class test_SpinMatrix(unittest.TestCase):
     def test_anisotropy_couplings(self):
         pms = common.constants.pauli_matrices
         sys = SpinMatrix(N=2, spin_number=[2, 2], sparse_type=sp.sparse.csr_matrix)
-        sys.add_term([0, 1], [pms[2], pms[3]]) # \krons(sigma_y, sigma_z)
+        sys.add_kron_term([0, 1], [pms[2], pms[3]]) # \krons(sigma_y, sigma_z)
 
         print('Anistropy coupling: ')
         print(sys.matrix.todense())
@@ -164,8 +164,8 @@ class test_SpinMatrix(unittest.TestCase):
         rand_mat_3 = sp.matrix([[0,  1, 2],
                                 [2, -1, 2],
                                 [0,  0, 1]])
-        sys.add_term([0, 1], [pms[2], rand_mat_3]) # \krons(sigma_y, rand_mat_3)
-        sys.add_term([0], [pms[3]]) # add an on-site potential
+        sys.add_kron_term([0, 1], [pms[2], rand_mat_3]) # \krons(sigma_y, rand_mat_3)
+        sys.add_kron_term([0], [pms[3]]) # add an on-site potential
 
         print('Mixed spins (1/2 and 1): ')
         print(sys.matrix.todense())
@@ -187,8 +187,8 @@ class test_SpinMatrix(unittest.TestCase):
     def test_anisotropy_couplings_larger_matrix(self):
         pms = common.constants.pauli_matrices
         sys = SpinMatrix(N=4, spin_number=2, sparse_type=sp.sparse.bsr_matrix)
-        sys.add_term([0, 2], [pms[1], pms[3]]) # \krons(sigma_x, sigma_z)
-        sys.add_term([0], [pms[3]])
+        sys.add_kron_term([0, 2], [pms[1], pms[3]]) # \krons(sigma_x, sigma_z)
+        sys.add_kron_term([0], [pms[3]])
 
         print('Anistropy coupling with 4 1/2 spins: ')
         print(sys.matrix.todense())
