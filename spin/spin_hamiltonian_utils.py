@@ -80,8 +80,8 @@ class test_krons_by_search(unittest.TestCase):
         """ kron(sigma_x, sigma_x) """
         elems = []
         value = 1.0
-        pms = common.constants.pauli_matrices
-        res = krons_by_search(matSeq=[pms[1], pms[1]],
+        sigma = common.constants.pauli_matrices
+        res = krons_by_search(matSeq=[sigma[1], sigma[1]],
                               nth=0, i=0, j=0, value=value, elems=elems)
         matrix = sp.array(to_sparse(elems, scipy.sparse.csr_matrix).todense())
         print(matrix)
@@ -101,8 +101,8 @@ class test_krons_by_search(unittest.TestCase):
         """ kron(sigma_y, sigma_y) """
         elems = []
         value = 1.0
-        pms = common.constants.pauli_matrices
-        res = krons_by_search(matSeq=[pms[2], pms[2]],
+        sigma = common.constants.pauli_matrices
+        res = krons_by_search(matSeq=[sigma[2], sigma[2]],
                               nth=0, i=0, j=0, value=value, elems=elems)
         matrix = sp.array(to_sparse(elems, scipy.sparse.csr_matrix).todense())
         print(matrix)
@@ -122,8 +122,8 @@ class test_krons_by_search(unittest.TestCase):
         """ kron(sigma_z, sigma_z) """
         elems = []
         value = 1.0
-        pms = common.constants.pauli_matrices
-        res = krons_by_search(matSeq=[pms[3], pms[3]],
+        sigma = common.constants.pauli_matrices
+        res = krons_by_search(matSeq=[sigma[3], sigma[3]],
                               nth=0, i=0, j=0, value=value, elems=elems)
         matrix = sp.array(to_sparse(elems, scipy.sparse.csr_matrix).todense())
         print(matrix)
@@ -143,8 +143,8 @@ class test_krons_by_search(unittest.TestCase):
         """ kron(sigma_z, sigma_y) """
         elems = []
         value = 1.0
-        pms = common.constants.pauli_matrices
-        res = krons_by_search(matSeq=[pms[3], pms[2]],
+        sigma = common.constants.pauli_matrices
+        res = krons_by_search(matSeq=[sigma[3], sigma[2]],
                               nth=0, i=0, j=0, value=value, elems=elems)
         matrix = sp.array(to_sparse(elems, scipy.sparse.csr_matrix).todense())
         print(matrix)
@@ -164,8 +164,8 @@ class test_krons_by_search(unittest.TestCase):
         """ kron(sigma_y, sigma_z) """
         elems = []
         value = 1.0
-        pms = common.constants.pauli_matrices
-        res = krons_by_search(matSeq=[pms[2], pms[3]],
+        sigma = common.constants.pauli_matrices
+        res = krons_by_search(matSeq=[sigma[2], sigma[3]],
                               nth=0, i=0, j=0, value=value, elems=elems)
         matrix = sp.array(to_sparse(elems, scipy.sparse.csr_matrix).todense())
         print(matrix)
