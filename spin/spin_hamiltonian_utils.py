@@ -32,6 +32,8 @@ def krons_by_search(matSeq: Sequence[sp.ndarray],
             return False
         if m != n:
             return False
+        # !!! This nested loop might not be efficient if each matrix in matSeq in sparse
+        # consider wrap the matrix up in a class and a get_non_zero_mat_elems method
         for u in range(m):
             for v in range(m):
                 if abs(matSeq[nth][u, v] * value) > 1e-16:
