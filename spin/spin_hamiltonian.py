@@ -85,8 +85,7 @@ class SpinMatrix():
             else:
                 new_mat = sp.eye(self.get_spin(j))
             matSeq.append(new_mat)
-        elems = []
-        krons_by_search(matSeq, 0, 0, 0, 1.0, elems)
+        elems, confs = krons_by_search(matSeq)
         new_term = to_sparse(elems, self.sparse_type)
         self.matrix += new_term
 

@@ -4,47 +4,70 @@ from typing import Dict, Tuple, Sequence
 import unittest
 import common.constants
 
-def krons_by_search(matSeq: Sequence[sp.ndarray],
-          nth: int,
-          i: int,
-          j: int,
-          value: complex,
-          elems: Sequence[Tuple]) -> bool:
+def krons_by_search(matSeq: Sequence[sp.ndarray]):
     """Calculate the Kronecker product of a sequence of matrices given by matSeq.
 
     Instead of directly calculating the Kronecker product, the code searches for non-zero matrix
     elements by filtering out zero-out matrix blocks based on the input matrices. This will be
     highly efficient if the given matrices has a significant numbers of zeros.
-
-    return a list of non-zero matrix elements to elems in this format:
-    [(i0, j0, value0), (i1, j2, value1), ...]
     """
-    if nth > len(matSeq):
-        print('index (nth = {}) is larger than the length of matSeq ({}).'.format(nth, len(matSeq)))
-        return False
-    elif nth == len(matSeq):
-        elems.append((i, j, value))
-        return True
-    else:
-        try:
-            m, n = sp.array(matSeq[nth]).shape
-        except: # if matSeq[nth] is not a valid 2D array
-            return False
+    # sanity check for matSeq
+    dims = []
+    for i, mat in enumerate(matSeq):
+        m, n = mat.shape
         if m != n:
-            return False
+            raise ValueError("matSeq[{}] is not a square matrix.".format(i))
+        dims.append(m)
+    elems = []
+    search_for_elems(matSeq=matSeq, nth=0, i=0, j=0, value=1.0, elems=elems)
+    confs = []
+    search_for_confs(dims=dims, nth=0, conf='', confs=confs)
+    return elems, confs
+
+def search_for_confs(dims,
+                     nth: int,
+                     conf: str,
+                     confs: Sequence[str]):
+    """Search for all the configurations"""
+    if nth < 0 or nth > len(dims):
+        raise ValueError('index (nth = {}) is larger than the length of dims ({}).')
+    elif nth == len(dims):
+        if conf: confs.append(conf)
+    else:
+        for u in range(dims[nth]):
+            search_for_confs(dims, nth + 1, conf + str(u), confs)
+
+def search_for_elems(matSeq: Sequence[sp.ndarray],
+          nth: int,
+          i: int,
+          j: int,
+          value: complex,
+          elems: Sequence[Tuple]) -> bool:
+    """Implement the actual search for non-zero matrix elements.
+
+    Append a list of non-zero matrix elements to elems in this format:
+
+    elems = [(i0, j0, value0), (i1, j2, value1), ...]
+    """
+    if nth < 0 or nth > len(matSeq):
+        raise ValueError('index (nth = {}) is larger than the length \
+                          of matSeq ({}).'.format(nth, len(matSeq)))
+    elif nth == len(matSeq):
+        if nth > 0: elems.append((i, j, value))
+    else:
+        m = matSeq[nth].shape[0]
         # !!! This nested loop might not be efficient if each matrix in matSeq in sparse
         # consider wrap the matrix up in a class and a get_non_zero_mat_elems method
         for u in range(m):
             for v in range(m):
                 if abs(matSeq[nth][u, v] * value) > 1e-16:
                     # Look for non-zero matrix elements recursively
-                    if not krons_by_search(matSeq,
-                                           nth + 1,
-                                           i * m + u,
-                                           j * m + v,
-                                           matSeq[nth][u, v] * value,
-                                           elems): return False
-        return True
+                    search_for_elems(matSeq,
+                                     nth + 1,
+                                     i * m + u,
+                                     j * m + v,
+                                     matSeq[nth][u, v] * value,
+                                     elems)
 
 def to_sparse(elems, sparse_type):
     return sparse_type(([_[2] for _ in elems],
@@ -55,17 +78,12 @@ def to_sparse(elems, sparse_type):
 class test_krons_by_search(unittest.TestCase):
 
     def test_empty_sequence(self):
-        elems = []
-        value = 1.0
-        res = krons_by_search(matSeq=[], nth=0, i=0, j=0, value=value, elems=elems)
-        self.assertEqual(len(elems), 1)
-        self.assertEqual(res, True)
+        elems, confs = krons_by_search(matSeq=[])
+        self.assertEqual(len(elems), 0)
+        self.assertEqual(len(confs), 0)
 
     def test_single_matrix(self):
-        elems = []
-        value = 1.0
-        res = krons_by_search(matSeq=[common.constants.pauli_matrices[0]],
-                              nth=0, i=0, j=0, value=value, elems=elems)
+        elems, confs = krons_by_search(matSeq=[common.constants.pauli_matrices[0]])
         matrix = sp.array(to_sparse(elems, scipy.sparse.csr_matrix).todense())
         print(matrix)
         self.assertEqual(
@@ -76,15 +94,12 @@ class test_krons_by_search(unittest.TestCase):
             ),
             True
         )
-        self.assertEqual(res, True)
+        self.assertEqual(confs, ['0', '1'])
 
     def test_two_matrices_xx(self):
         """ kron(sigma_x, sigma_x) """
-        elems = []
-        value = 1.0
         sigma = common.constants.pauli_matrices
-        res = krons_by_search(matSeq=[sigma[1], sigma[1]],
-                              nth=0, i=0, j=0, value=value, elems=elems)
+        elems, confs = krons_by_search(matSeq=[sigma[1], sigma[1]])
         matrix = sp.array(to_sparse(elems, scipy.sparse.csr_matrix).todense())
         print(matrix)
         self.assertEqual(
@@ -97,15 +112,12 @@ class test_krons_by_search(unittest.TestCase):
             ),
             True
         )
-        self.assertEqual(res, True)
+        self.assertEqual(confs, ['00', '01', '10', '11'])
 
     def test_two_matrices_yy(self):
         """ kron(sigma_y, sigma_y) """
-        elems = []
-        value = 1.0
         sigma = common.constants.pauli_matrices
-        res = krons_by_search(matSeq=[sigma[2], sigma[2]],
-                              nth=0, i=0, j=0, value=value, elems=elems)
+        elems, confs = krons_by_search(matSeq=[sigma[2], sigma[2]])
         matrix = sp.array(to_sparse(elems, scipy.sparse.csr_matrix).todense())
         print(matrix)
         self.assertEqual(
@@ -118,15 +130,11 @@ class test_krons_by_search(unittest.TestCase):
             ),
             True
         )
-        self.assertEqual(res, True)
 
     def test_two_matrices_zz(self):
         """ kron(sigma_z, sigma_z) """
-        elems = []
-        value = 1.0
         sigma = common.constants.pauli_matrices
-        res = krons_by_search(matSeq=[sigma[3], sigma[3]],
-                              nth=0, i=0, j=0, value=value, elems=elems)
+        elems, confs = krons_by_search(matSeq=[sigma[3], sigma[3]])
         matrix = sp.array(to_sparse(elems, scipy.sparse.csr_matrix).todense())
         print(matrix)
         self.assertEqual(
@@ -139,15 +147,11 @@ class test_krons_by_search(unittest.TestCase):
             ),
             True
         )
-        self.assertEqual(res, True)
 
     def test_two_matrices_zy(self):
         """ kron(sigma_z, sigma_y) """
-        elems = []
-        value = 1.0
         sigma = common.constants.pauli_matrices
-        res = krons_by_search(matSeq=[sigma[3], sigma[2]],
-                              nth=0, i=0, j=0, value=value, elems=elems)
+        elems, confs = krons_by_search(matSeq=[sigma[3], sigma[2]])
         matrix = sp.array(to_sparse(elems, scipy.sparse.csr_matrix).todense())
         print(matrix)
         self.assertEqual(
@@ -160,15 +164,11 @@ class test_krons_by_search(unittest.TestCase):
             ),
             True
         )
-        self.assertEqual(res, True)
 
     def test_two_matrices_yz(self):
         """ kron(sigma_y, sigma_z) """
-        elems = []
-        value = 1.0
         sigma = common.constants.pauli_matrices
-        res = krons_by_search(matSeq=[sigma[2], sigma[3]],
-                              nth=0, i=0, j=0, value=value, elems=elems)
+        elems, confs = krons_by_search(matSeq=[sigma[2], sigma[3]])
         matrix = sp.array(to_sparse(elems, scipy.sparse.csr_matrix).todense())
         print(matrix)
         self.assertEqual(
@@ -181,7 +181,12 @@ class test_krons_by_search(unittest.TestCase):
             ),
             True
         )
-        self.assertEqual(res, True)
+
+    def test_confs_23(self):
+        """ test kron(spin 1/2, spin 1)"""
+        sigma = common.constants.pauli_matrices
+        elems, confs = krons_by_search(matSeq=[sigma[2], sp.eye(3)])
+        self.assertEqual(confs, ['00', '01', '02', '10', '11', '12'])
 
 if __name__ == '__main__':
     unittest.main()
