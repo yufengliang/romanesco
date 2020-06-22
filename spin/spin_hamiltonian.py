@@ -32,7 +32,7 @@ class SpinMatrix():
         # spins specify the angular momentum number of each spin
         if type(spin_number) == int:
             self._dim = spin_number ** self.N
-            self._spin_number = spin_number
+            self._spin_number = [spin_number] * self.N
         elif type(spin_number) == list:
             if self.N != len(spin_number):
                 raise ValueError('Number of spins ({}) and the length of spin numbers ({}) are not \
