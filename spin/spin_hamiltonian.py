@@ -77,7 +77,8 @@ class SpinMatrix():
                 raise ValueError('The mats[{}] is not square (nr = {}, nc = {}).'.format(i, nr, nc))
             spin = self.get_spin(inds[i])
             if nr != spin:
-                raise ValueError('The size of mats[{}]({}) does not match the spin angular momentum number in record({}).'.format(i, nr, spin))
+                raise ValueError('The size of mats[{}]({}) does not match the spin number in the \
+                                  record({}).'.format(i, nr, spin))
         order = sorted(range(n), key = lambda i : inds[i])
         i = 0
         matSeq = []
