@@ -1,3 +1,4 @@
+from collections import defaultdict
 import scipy as sp
 import scipy.sparse
 from typing import Dict, Tuple, Sequence
@@ -72,6 +73,35 @@ def search_for_elems(matSeq: Sequence[sp.ndarray],
 def to_sparse(elems, sparse_type):
     return sparse_type(([_[2] for _ in elems],
                        ([_[0] for _ in elems], [_[1] for _ in elems])))
+
+class UnionFind:
+
+    def __init__(self, n):
+        self.n = n
+        self.rank = [0] * n
+        self.parent = [i for i in range(n)]
+
+    def find(self, i):
+        if self.parent[i] != i:
+            self.parent[i] = self.find(self.parent[i])
+        return self.parent[i]
+
+    # unite by rank
+    def unite(self, i, j):
+    	rootI, rootJ = self.find(i), self.find(j)
+    	if rootI == rootJ: return
+    	if self.rank[rootI] < self.rank[rootJ]:
+    		rootI, rootJ = rootJ, rootI
+    	self.parent[rootJ] = rootI
+    	if self.rank[rootI] == self.rank[rootJ]:
+    		self.rank[rootI] += 1
+
+    # results sorted by the group size in descending order
+    def get_groups(self):
+        groups = defaultdict(list)
+        for i in range(self.n):
+            groups[self.find(i)].append(i)
+        return sorted([sorted(group) for group in groups.values()], key = lambda g : -len(g))
 
 # -------------------------------------------- Unit Tests ------------------------------------------
 
@@ -187,6 +217,37 @@ class test_krons_by_search(unittest.TestCase):
         sigma = common.constants.pauli_matrices
         elems, confs = krons_by_search(matSeq=[sigma[2], sp.eye(3)])
         self.assertEqual(confs, ['00', '01', '02', '10', '11', '12'])
+
+class test_UnionFind(unittest.TestCase):
+
+    def test_case_1(self):
+        uf = UnionFind(5)
+        uf.unite(0, 1)
+        uf.unite(1, 2)
+        uf.unite(3, 4)
+        print(uf.get_groups())
+        self.assertEqual(uf.get_groups(), [[0, 1, 2], [3, 4]])
+
+    def test_case_2(self):
+        uf = UnionFind(6)
+        uf.unite(0, 5)
+        uf.unite(1, 2)
+        uf.unite(3, 0)
+        uf.unite(5, 1)
+        print(uf.get_groups())
+        self.assertEqual(uf.get_groups(), [[0, 1, 2, 3, 5], [4]])
+
+    def test_case_3(self):
+        uf = UnionFind(10)
+        uf.unite(5, 3)
+        uf.unite(2, 1)
+        uf.unite(9, 7)
+        uf.unite(0, 2)
+        uf.unite(6, 4)
+        uf.unite(1, 5)
+        uf.unite(4, 1)
+        print(uf.get_groups())
+        self.assertEqual(uf.get_groups(), [[0, 1, 2, 3, 4, 5, 6], [7, 9], [8]])
 
 if __name__ == '__main__':
     unittest.main()
