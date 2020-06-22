@@ -34,6 +34,9 @@ class SpinMatrix():
             self._dim = spin_number ** self.N
             self._spin_number = spin_number
         elif type(spin_number) == list:
+            if self.N != len(spin_number):
+                raise ValueError('Number of spins ({}) and the length of spin numbers ({}) are not \
+                                  equal'.format(self.N, len(spin_number)))
             self._dim = sp.prod(spin_number)
             self._spin_number = list(spin_number)
         else:
