@@ -21,9 +21,13 @@ def krons_by_search(matSeq: Sequence[sp.ndarray]):
         dims.append(m)
     elems = []
     search_for_elems(matSeq=matSeq, nth=0, i=0, j=0, value=1.0, elems=elems)
+    return elems
+
+def confs_by_search(dims: Sequence[int]):
+    """wrap up the search for configurations"""
     confs = []
     search_for_confs(dims=dims, nth=0, conf='', confs=confs)
-    return elems, confs
+    return confs
 
 def search_for_confs(dims,
                      nth: int,
@@ -107,13 +111,18 @@ class UnionFind:
 
 class test_krons_by_search(unittest.TestCase):
 
+    def test_confs_by_search(self):
+        self.assertEqual(confs_by_search([]), [])
+        self.assertEqual(confs_by_search([2]), ['0', '1'])
+        self.assertEqual(confs_by_search([2, 2]), ['00', '01', '10', '11'])
+        self.assertEqual(confs_by_search([2, 3]), ['00', '01', '02', '10', '11', '12'])
+
     def test_empty_sequence(self):
-        elems, confs = krons_by_search(matSeq=[])
+        elems = krons_by_search(matSeq=[])
         self.assertEqual(len(elems), 0)
-        self.assertEqual(len(confs), 0)
 
     def test_single_matrix(self):
-        elems, confs = krons_by_search(matSeq=[common.constants.pauli_matrices[0]])
+        elems = krons_by_search(matSeq=[common.constants.pauli_matrices[0]])
         matrix = sp.array(to_sparse(elems, scipy.sparse.csr_matrix).todense())
         print(matrix)
         self.assertEqual(
@@ -124,12 +133,11 @@ class test_krons_by_search(unittest.TestCase):
             ),
             True
         )
-        self.assertEqual(confs, ['0', '1'])
 
     def test_two_matrices_xx(self):
         """ kron(sigma_x, sigma_x) """
         sigma = common.constants.pauli_matrices
-        elems, confs = krons_by_search(matSeq=[sigma[1], sigma[1]])
+        elems = krons_by_search(matSeq=[sigma[1], sigma[1]])
         matrix = sp.array(to_sparse(elems, scipy.sparse.csr_matrix).todense())
         print(matrix)
         self.assertEqual(
@@ -142,12 +150,11 @@ class test_krons_by_search(unittest.TestCase):
             ),
             True
         )
-        self.assertEqual(confs, ['00', '01', '10', '11'])
 
     def test_two_matrices_yy(self):
         """ kron(sigma_y, sigma_y) """
         sigma = common.constants.pauli_matrices
-        elems, confs = krons_by_search(matSeq=[sigma[2], sigma[2]])
+        elems = krons_by_search(matSeq=[sigma[2], sigma[2]])
         matrix = sp.array(to_sparse(elems, scipy.sparse.csr_matrix).todense())
         print(matrix)
         self.assertEqual(
@@ -164,7 +171,7 @@ class test_krons_by_search(unittest.TestCase):
     def test_two_matrices_zz(self):
         """ kron(sigma_z, sigma_z) """
         sigma = common.constants.pauli_matrices
-        elems, confs = krons_by_search(matSeq=[sigma[3], sigma[3]])
+        elems = krons_by_search(matSeq=[sigma[3], sigma[3]])
         matrix = sp.array(to_sparse(elems, scipy.sparse.csr_matrix).todense())
         print(matrix)
         self.assertEqual(
@@ -181,7 +188,7 @@ class test_krons_by_search(unittest.TestCase):
     def test_two_matrices_zy(self):
         """ kron(sigma_z, sigma_y) """
         sigma = common.constants.pauli_matrices
-        elems, confs = krons_by_search(matSeq=[sigma[3], sigma[2]])
+        elems = krons_by_search(matSeq=[sigma[3], sigma[2]])
         matrix = sp.array(to_sparse(elems, scipy.sparse.csr_matrix).todense())
         print(matrix)
         self.assertEqual(
@@ -198,7 +205,7 @@ class test_krons_by_search(unittest.TestCase):
     def test_two_matrices_yz(self):
         """ kron(sigma_y, sigma_z) """
         sigma = common.constants.pauli_matrices
-        elems, confs = krons_by_search(matSeq=[sigma[2], sigma[3]])
+        elems = krons_by_search(matSeq=[sigma[2], sigma[3]])
         matrix = sp.array(to_sparse(elems, scipy.sparse.csr_matrix).todense())
         print(matrix)
         self.assertEqual(
@@ -215,8 +222,7 @@ class test_krons_by_search(unittest.TestCase):
     def test_confs_23(self):
         """ test kron(spin 1/2, spin 1)"""
         sigma = common.constants.pauli_matrices
-        elems, confs = krons_by_search(matSeq=[sigma[2], sp.eye(3)])
-        self.assertEqual(confs, ['00', '01', '02', '10', '11', '12'])
+        elems = krons_by_search(matSeq=[sigma[2], sp.eye(3)])
 
 class test_UnionFind(unittest.TestCase):
 

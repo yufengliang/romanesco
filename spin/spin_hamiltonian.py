@@ -1,5 +1,5 @@
 import scipy as sp
-from spin.spin_hamiltonian_utils import (krons_by_search, to_sparse)
+from spin.spin_hamiltonian_utils import (krons_by_search, confs_by_search, to_sparse)
 import typing
 import unittest
 import common.constants
@@ -45,6 +45,7 @@ class SpinMatrix():
 
         self.matrix = sparse_type((self._dim, self._dim))
         self.sparse_type = sparse_type
+        self.confs = confs_by_search(self._spin_number)
 
     def get_spin(self,
                  i: int):
@@ -89,7 +90,7 @@ class SpinMatrix():
             else:
                 new_mat = sp.eye(self.get_spin(j))
             matSeq.append(new_mat)
-        elems, confs = krons_by_search(matSeq)
+        elems = krons_by_search(matSeq)
         new_term = to_sparse(elems, self.sparse_type)
         self.matrix += new_term
 
@@ -118,6 +119,7 @@ class test_SpinMatrix(unittest.TestCase):
             ),
             True
         )
+        self.assertEqual(sys.confs, ['00', '01', '10', '11'])
 
     def test_heisenberg_couplings_spin_number_list(self):
         sigma = common.constants.pauli_matrices
@@ -186,6 +188,7 @@ class test_SpinMatrix(unittest.TestCase):
             ),
             True
         )
+        self.assertEqual(sys.confs, ['00', '01', '02', '10', '11', '12'])
 
     def test_anisotropy_couplings_larger_matrix(self):
         sigma = common.constants.pauli_matrices
