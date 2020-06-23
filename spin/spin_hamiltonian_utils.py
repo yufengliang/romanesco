@@ -101,11 +101,12 @@ class UnionFind:
     		self.rank[rootI] += 1
 
     # results sorted by the group size in descending order
+    # if two group sizes are the same, then sorted according to group indices.
     def get_groups(self):
         groups = defaultdict(list)
         for i in range(self.n):
             groups[self.find(i)].append(i)
-        return sorted([sorted(group) for group in groups.values()], key = lambda g : -len(g))
+        return sorted([sorted(group) for group in groups.values()], key = lambda g : [-len(g)] + g)
 
 # -------------------------------------------- Unit Tests ------------------------------------------
 
@@ -254,6 +255,19 @@ class test_UnionFind(unittest.TestCase):
         uf.unite(4, 1)
         print(uf.get_groups())
         self.assertEqual(uf.get_groups(), [[0, 1, 2, 3, 4, 5, 6], [7, 9], [8]])
+
+    def test_case_4(self):
+        uf = UnionFind(6)
+        uf.unite(4, 1)
+        uf.unite(3, 2)
+        print(uf.get_groups())
+        self.assertEqual(uf.get_groups(), [[1, 4], [2, 3], [0], [5]])
+
+    def test_case_5(self):
+        uf = UnionFind(6)
+        uf.unite(0, 5)
+        print(uf.get_groups())
+        self.assertEqual(uf.get_groups(), [[0, 5], [1], [2], [3], [4]])
 
 if __name__ == '__main__':
     unittest.main()
